@@ -1,8 +1,6 @@
 package vttp.paf.sshdemo.services;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,17 +51,13 @@ public class GiphyService {
                 .build();
         RestTemplate template = new RestTemplate();
         ResponseEntity<String> resp = template.exchange(req, String.class);
-        try (InputStream is = new ByteArrayInputStream(resp.getBody().getBytes())) {
-            JsonReader reader = Json.createReader(is);
-            JsonObject object = reader.readObject();
-            JsonArray data = object.getJsonArray("data");
-            for (JsonValue item : data) {
-                Gif gif = Gif.createFromJsonObject(item.asJsonObject());
-                results.add(gif);
-            }
-            return results;
-        } catch (IOException e) {
-            return results;
+        JsonReader reader = Json.createReader(new StringReader(resp.getBody()));
+        JsonObject object = reader.readObject();
+        JsonArray data = object.getJsonArray("data");
+        for (JsonValue item : data) {
+            Gif gif = Gif.createFromJsonObject(item.asJsonObject());
+            results.add(gif);
         }
+        return results;
     }
 }
